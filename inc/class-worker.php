@@ -29,7 +29,7 @@ class Worker {
 
 		$this->status = proc_get_status( $this->process );
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		printf( '[%d] Worker status: %s' . PHP_EOL, $this->job->id, print_r( $this->status, true ) );
+		// printf( '[%d] Worker status: %s' . PHP_EOL, $this->job->id, print_r( $this->status, true ) );
 		return ! ( $this->status['running'] );
 	}
 
@@ -54,16 +54,22 @@ class Worker {
 	 * @return bool Did the process run successfully?
 	 */
 	public function shutdown() {
-		printf( '[%d] Worker shutting down...' . PHP_EOL, $this->job->id );
+		// printf( '[%d] Worker shutting down...' . PHP_EOL, $this->job->id );
 
 		// Exhaust the streams
 		$this->drain_pipes();
 		fclose( $this->pipes[1] );
 		fclose( $this->pipes[2] );
 
-		printf( '[%d] Worker out: %s' . PHP_EOL, $this->job->id, $this->output );
-		printf( '[%d] Worker err: %s' . PHP_EOL, $this->job->id, $this->error_output );
-		printf( '[%d] Worker ret: %d' . PHP_EOL, $this->job->id, $this->status['exitcode'] );
+		if ($this->output) {
+			printf( '[%d] Worker out: %s' . PHP_EOL, $this->job->id, $this->output );
+		}
+
+		if ($this->error_output) {
+			printf( '[%d] Worker err: %s' . PHP_EOL, $this->job->id, $this->error_output );
+		}
+
+		// printf( '[%d] Worker ret: %d' . PHP_EOL, $this->job->id, $this->status['exitcode'] );
 
 		// Close the process down too
 		proc_close( $this->process );
